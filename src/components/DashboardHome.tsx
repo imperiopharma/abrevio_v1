@@ -162,7 +162,7 @@ const DashboardHome = () => {
                 <ChartTooltip
                   content={
                     <ChartTooltipContent
-                      indicator="bar"
+                      indicator="dot"
                       formatter={(value) => [`${value}%`, 'Porcentagem']}
                     />
                   }
