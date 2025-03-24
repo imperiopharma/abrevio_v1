@@ -44,13 +44,15 @@ const MyLinks = () => {
           <SearchBar
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
+            placeholder="Pesquisar links..."
+            className="w-full md:w-auto"
           />
         </div>
 
         {filteredLinks.length === 0 ? (
           <EmptyState />
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-4 pb-4">
             {filteredLinks.map((link, index) => (
               <LinkItem
                 key={link.id}
@@ -69,6 +71,12 @@ const MyLinks = () => {
         isOpen={qrCodeModalOpen}
         onClose={() => setQrCodeModalOpen(false)}
         url={qrCodeLink || ''}
+        qrCodeOptions={{
+          width: 320,
+          margin: 2,
+          dark: '#ffffff',
+          light: '#00000000',
+        }}
       />
     </div>
   );

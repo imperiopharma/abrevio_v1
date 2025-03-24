@@ -16,4 +16,10 @@ export interface QRCodeSettings {
   margin?: number;
   dark?: string;
   light?: string;
+  logo?: string;
+  logoWidth?: number;
+  logoHeight?: number;
+  logoOpacity?: number;
+  dotStyle?: 'square' | 'rounded' | 'dots' | 'classy';
+  errorCorrectionLevel?: 'L' | 'M' | 'Q' | 'H';
 }

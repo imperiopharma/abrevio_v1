@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { Download, X, QrCode } from 'lucide-react';
+import { QRCodeSettings } from '@/components/links/types';
 
 export interface QRCodeModalProps {
   isOpen: boolean;
@@ -15,15 +16,8 @@ export interface QRCodeModalProps {
   downloadFilename?: string;
   downloadSuccessMessage?: string;
   errorMessage?: string;
-  qrCodeOptions?: QRCodeOptions;
+  qrCodeOptions?: QRCodeSettings;
   animationDuration?: number;
-}
-
-interface QRCodeOptions {
-  width?: number;
-  margin?: number;
-  dark?: string;
-  light?: string;
 }
 
 const QRCodeModal: React.FC<QRCodeModalProps> = ({ 
@@ -90,7 +84,7 @@ const QRCodeModal: React.FC<QRCodeModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-abrev-dark-accent border-gray-800 text-white sm:max-w-md">
+      <DialogContent className="bg-abrev-dark-accent border-gray-800 text-white sm:max-w-md max-w-[320px] mx-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold flex items-center justify-between">
             {title}
@@ -139,17 +133,17 @@ const QRCodeDisplay: React.FC<QRCodeDisplayProps> = ({
   return (
     <div className="flex flex-col items-center p-2">
       <div className={`bg-gradient-to-r from-abrev-blue to-abrev-purple p-1 rounded-xl ${isAnimating ? 'animate-rotate-scale' : ''}`}>
-        <div className="bg-abrev-dark-accent p-5 rounded-lg flex items-center justify-center">
+        <div className="bg-abrev-dark-accent p-3 sm:p-5 rounded-lg flex items-center justify-center">
           <img 
             src={qrCodeDataUrl} 
             alt="QR Code" 
-            className="w-64 h-64 max-w-full"
+            className="w-52 h-52 sm:w-64 sm:h-64 max-w-full"
           />
         </div>
       </div>
       
       <div className="mt-4 w-full">
-        <div className="text-gray-300 mb-2 break-all text-sm text-center">
+        <div className="text-gray-300 mb-2 break-all text-xs sm:text-sm text-center px-2">
           <span className="font-medium">URL:</span> {url}
         </div>
       </div>
