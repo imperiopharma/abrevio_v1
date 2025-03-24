@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Transition } from '@/components/animations/Transition';
 import Navbar from '@/components/Navbar';
 import { Check } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 const PricingTier = ({ 
   title, 
@@ -12,7 +14,8 @@ const PricingTier = ({
   features, 
   buttonText, 
   recommended = false,
-  delay = 0
+  delay = 0,
+  onSelect
 }) => {
   return (
     <Transition type="slide-up" delay={delay}>
@@ -49,6 +52,7 @@ const PricingTier = ({
               ? 'bg-gradient-to-r from-abrev-blue to-abrev-purple hover:shadow-lg hover:shadow-abrev-blue/20' 
               : 'bg-white/10 hover:bg-white/20 text-white'
           } transition-all duration-300`}
+          onClick={onSelect}
         >
           {buttonText}
         </Button>
@@ -58,6 +62,25 @@ const PricingTier = ({
 };
 
 const Pricing = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleSelectPlan = (plan) => {
+    localStorage.setItem('selectedPlan', plan);
+    
+    if (plan === 'empresas') {
+      // Para o plano Empresas, simulamos um acesso total imediato
+      toast({
+        title: "Bem-vindo ao Plano Empresas!",
+        description: "Você agora tem acesso a todos os recursos ilimitados.",
+      });
+      navigate('/dashboard');
+    } else {
+      // Para outros planos, redirecionamos para o registro
+      navigate('/register');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-abrev-dark">
       <Navbar />
@@ -98,6 +121,7 @@ const Pricing = () => {
               ]}
               buttonText="Começar Grátis"
               delay={0.1}
+              onSelect={() => handleSelectPlan('basico')}
             />
             
             <PricingTier
@@ -115,6 +139,7 @@ const Pricing = () => {
               buttonText="Assinar Pro"
               recommended={true}
               delay={0.2}
+              onSelect={() => handleSelectPlan('pro')}
             />
             
             <PricingTier
@@ -133,6 +158,7 @@ const Pricing = () => {
               ]}
               buttonText="Contatar Vendas"
               delay={0.3}
+              onSelect={() => handleSelectPlan('empresas')}
             />
           </div>
           
@@ -142,7 +168,10 @@ const Pricing = () => {
               <p className="text-gray-400 mb-6">
                 Entre em contato com nossa equipe para criarmos um plano que atenda perfeitamente às necessidades do seu negócio.
               </p>
-              <Button className="bg-white text-abrev-dark hover:bg-gray-200 transition-all duration-300">
+              <Button 
+                className="bg-white text-abrev-dark hover:bg-gray-200 transition-all duration-300"
+                onClick={() => handleSelectPlan('empresas')}
+              >
                 Falar com Equipe de Vendas
               </Button>
             </div>
