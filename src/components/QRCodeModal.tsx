@@ -84,7 +84,7 @@ const QRCodeModal: React.FC<QRCodeModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-abrev-dark-accent border-gray-800 text-white sm:max-w-md max-w-[320px] mx-auto">
+      <DialogContent className="bg-abrev-dark-accent border-gray-800 text-white sm:max-w-md max-w-[90%] w-[330px] mx-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold flex items-center justify-between">
             {title}
@@ -137,7 +137,7 @@ const QRCodeDisplay: React.FC<QRCodeDisplayProps> = ({
           <img 
             src={qrCodeDataUrl} 
             alt="QR Code" 
-            className="w-52 h-52 sm:w-64 sm:h-64 max-w-full"
+            className="w-[200px] h-[200px] sm:w-[250px] sm:h-[250px] max-w-full"
           />
         </div>
       </div>

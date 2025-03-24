@@ -49,17 +49,20 @@ const LinkItem: React.FC<LinkItemProps> = ({ link, index, onShowQRCode, onDelete
                 {link.clicks} clicks
               </div>
             </div>
-            <p className="text-gray-400 mt-1 text-sm max-w-full">
-              <ExternalLink className="w-3 h-3 inline mr-1 shrink-0" />
-              <a 
-                href={link.originalUrl} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="hover:text-white transition-colors duration-300 inline-block truncate max-w-[calc(100%-20px)] align-middle"
-              >
-                {link.originalUrl}
-              </a>
-            </p>
+            <div className="text-gray-400 mt-1 text-sm w-full overflow-hidden">
+              <div className="flex items-start">
+                <ExternalLink className="w-3 h-3 inline mr-1 shrink-0 mt-1" />
+                <a 
+                  href={link.originalUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="hover:text-white transition-colors duration-300 break-all line-clamp-2"
+                  title={link.originalUrl}
+                >
+                  {link.originalUrl}
+                </a>
+              </div>
+            </div>
           </div>
           
           {isMobile ? (

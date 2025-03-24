@@ -52,7 +52,7 @@ const MyLinks = () => {
         {filteredLinks.length === 0 ? (
           <EmptyState />
         ) : (
-          <div className="space-y-4 pb-4">
+          <div className="space-y-4 pb-6">
             {filteredLinks.map((link, index) => (
               <LinkItem
                 key={link.id}
