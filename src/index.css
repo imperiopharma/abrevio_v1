@@ -43,6 +43,11 @@
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 191 100% 50%;
+    
+    /* Chart colors */
+    --color-clicks: #60a5fa;
+    --color-whatsapp: #34d399;
+    --color-bio: #a78bfa;
   }
 }
 
@@ -103,6 +108,11 @@
   .card-hover {
     @apply transition-all duration-300 hover:translate-y-[-5px] hover:shadow-lg hover:shadow-abrev-blue/20;
   }
+  
+  /* Responsive chart containers */
+  .chart-container-responsive {
+    @apply h-40 sm:h-60 md:h-80 w-full;
+  }
 
   @keyframes pulse {
     0%, 100% {
@@ -111,5 +121,18 @@
     50% {
       opacity: 0.8;
     }
+  }
+}
+
+/* Ensure charts are responsive */
+.recharts-wrapper,
+.recharts-surface {
+  @apply overflow-visible;
+}
+
+/* Make smaller text for mobile devices */
+@media (max-width: 640px) {
+  .recharts-text {
+    font-size: 8px !important;
   }
 }
