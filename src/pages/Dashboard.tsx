@@ -6,13 +6,15 @@ import { Button } from '@/components/ui/button';
 import LinkShortener from '@/components/LinkShortener';
 import MyLinks from '@/components/MyLinks';
 import WhatsAppQR from '@/components/WhatsAppQR';
+import DashboardHome from '@/components/DashboardHome';
 import { Link2, Link, QrCode, Smartphone, BarChart3, LogOut, Menu, X } from 'lucide-react';
 
 const Dashboard = () => {
-  const [activeTab, setActiveTab] = useState('shorten');
+  const [activeTab, setActiveTab] = useState('home');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const tabs = [
+    { id: 'home', label: 'Dashboard', icon: <BarChart3 size={18} /> },
     { id: 'shorten', label: 'Encurtar Link', icon: <Link2 size={18} /> },
     { id: 'links', label: 'Meus Links', icon: <Link size={18} /> },
     { id: 'whatsapp', label: 'WhatsApp QR', icon: <Smartphone size={18} /> },
@@ -21,6 +23,8 @@ const Dashboard = () => {
 
   const renderContent = () => {
     switch (activeTab) {
+      case 'home':
+        return <DashboardHome />;
       case 'shorten':
         return <LinkShortener />;
       case 'links':
@@ -30,7 +34,7 @@ const Dashboard = () => {
       case 'bio':
         return <div>Bio Content - To be implemented</div>;
       default:
-        return <LinkShortener />;
+        return <DashboardHome />;
     }
   };
 
