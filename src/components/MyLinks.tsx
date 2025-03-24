@@ -6,6 +6,7 @@ import { Transition } from '@/components/animations/Transition';
 import { useToast } from '@/hooks/use-toast';
 import QRCodeModal from '@/components/QRCodeModal';
 import { Copy, QrCode, BarChart3, ExternalLink, Trash, Check, Search } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 // Temporary sample data for demonstration
 const demoLinks = [
@@ -60,6 +61,7 @@ const MyLinks = () => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [qrCodeLink, setQrCodeLink] = useState<string | null>(null);
   const [qrCodeModalOpen, setQrCodeModalOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   // Filter links based on search term
   const filteredLinks = demoLinks.filter(
@@ -93,9 +95,9 @@ const MyLinks = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="w-full max-w-5xl mx-auto px-2 sm:px-4">
       <Transition type="slide-up">
-        <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+        <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
           <h2 className="text-2xl md:text-3xl font-bold text-white">
             <span className="text-gradient-blue">Meus</span> Links
           </h2>
@@ -123,20 +125,20 @@ const MyLinks = () => {
             {filteredLinks.map((link, index) => (
               <Transition key={link.id} delay={index * 0.05} type="fade">
                 <GlassCard 
-                  className="border border-gray-800 transition-all duration-300 hover:border-gray-700" 
+                  className="border border-gray-800 transition-all duration-300 hover:border-gray-700 overflow-hidden" 
                   hover={true}
                 >
-                  <div className="flex flex-col lg:flex-row justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center">
+                  <div className="flex flex-col gap-4">
+                    <div className="w-full">
+                      <div className="flex flex-wrap items-center gap-2">
                         <h3 className="font-medium text-abrev-blue break-all">
                           {link.shortUrl}
                         </h3>
-                        <div className="ml-3 bg-abrev-purple/20 text-abrev-purple px-2 py-0.5 rounded-full text-xs">
+                        <div className="bg-abrev-purple/20 text-abrev-purple px-2 py-0.5 rounded-full text-xs">
                           {link.clicks} clicks
                         </div>
                       </div>
-                      <p className="text-gray-400 mt-1 text-sm truncate">
+                      <p className="text-gray-400 mt-1 text-sm truncate max-w-full">
                         <ExternalLink className="w-3 h-3 inline mr-1" />
                         <a 
                           href={link.originalUrl} 
@@ -149,7 +151,7 @@ const MyLinks = () => {
                       </p>
                     </div>
                     
-                    <div className="flex flex-wrap gap-2 justify-end items-center">
+                    <div className="flex flex-wrap gap-2 items-center">
                       <Button
                         size="sm"
                         variant="outline"
@@ -183,14 +185,16 @@ const MyLinks = () => {
                         QR Code
                       </Button>
                       
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="border-gray-700 text-gray-300 hover:border-abrev-blue hover:text-white transition-all duration-300"
-                      >
-                        <BarChart3 className="mr-1 h-3 w-3" />
-                        Estatísticas
-                      </Button>
+                      {!isMobile && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-gray-700 text-gray-300 hover:border-abrev-blue hover:text-white transition-all duration-300"
+                        >
+                          <BarChart3 className="mr-1 h-3 w-3" />
+                          Estatísticas
+                        </Button>
+                      )}
                       
                       <Button
                         size="sm"
