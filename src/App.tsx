@@ -12,6 +12,7 @@ import Dashboard from "./pages/Dashboard";
 import Features from "./pages/Features";
 import Pricing from "./pages/Pricing";
 import NotFound from "./pages/NotFound";
+import AdminDashboard from "./pages/AdminDashboard";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/features" element={<Features />} />
             <Route path="/pricing" element={<Pricing />} />
+            <Route path="/admin" element={<AdminDashboard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AnimatePresence>
