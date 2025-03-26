@@ -17,7 +17,14 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
+
+// Componentes Admin
+import AdminDashboardContent from '@/components/admin/AdminDashboard';
+import AdminUsers from '@/components/admin/AdminUsers';
+import AdminLinks from '@/components/admin/AdminLinks';
 import AdminPlans from '@/components/admin/AdminPlans';
+import AdminStats from '@/components/admin/AdminStats';
+import AdminSettings from '@/components/admin/AdminSettings';
 
 type NavItem = {
   label: string;
@@ -29,7 +36,7 @@ const AdminDashboard = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const [activeTab, setActiveTab] = useState('plans');
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
 
   const navItems: NavItem[] = [
@@ -97,19 +104,20 @@ const AdminDashboard = () => {
 
   const renderContent = () => {
     switch (activeTab) {
+      case 'dashboard':
+        return <AdminDashboardContent />;
+      case 'users':
+        return <AdminUsers />;
+      case 'links':
+        return <AdminLinks />;
       case 'plans':
         return <AdminPlans />;
+      case 'stats':
+        return <AdminStats />;
+      case 'settings':
+        return <AdminSettings />;
       default:
-        return (
-          <div className="flex items-center justify-center h-64 text-center">
-            <div>
-              <h3 className="text-xl font-medium text-white mb-2">Funcionalidade em Desenvolvimento</h3>
-              <p className="text-gray-400">
-                Esta seção estará disponível em breve.
-              </p>
-            </div>
-          </div>
-        );
+        return <AdminDashboardContent />;
     }
   };
 
