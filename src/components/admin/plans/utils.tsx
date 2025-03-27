@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link, QrCode, Database, Globe, Tag } from 'lucide-react';
 import { Plan } from './types';
@@ -74,6 +75,3 @@ export const initialPlans: Plan[] = [
     ]
   }
 ];
-
-// Tipo Plan é importado do arquivo types.ts
-import { Plan } from './types';
