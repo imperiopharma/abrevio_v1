@@ -1,6 +1,6 @@
-
 import React from 'react';
 import { Link, QrCode, Database, Globe, Tag } from 'lucide-react';
+import { Plan } from './types';
 
 // Ícones para os recursos
 export const getFeatureIcon = (featureId: string) => {
