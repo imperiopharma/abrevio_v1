@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Plan } from "@/components/admin/plans/types";
 import { nanoid } from 'nanoid';
@@ -56,13 +57,17 @@ export const checkTableExists = async (tableName: string): Promise<boolean> => {
     }
     
     // Tentativa direta de usar a tabela
-    const { count, error: countError } = await supabase
-      .from(tableName)
-      .select('*', { count: 'exact', head: true })
-      .limit(1);
-      
-    // Se não houver erro, a tabela existe
-    return !countError;
+    if (tableName === 'links' || tableName === 'clicks' || tableName === 'qr_codes') {
+      const { count, error: countError } = await supabase
+        .from(tableName)
+        .select('*', { count: 'exact', head: true })
+        .limit(1);
+        
+      // Se não houver erro, a tabela existe
+      return !countError;
+    }
+    
+    return false;
   } catch (error) {
     console.error(`Erro ao verificar tabela ${tableName}:`, error);
     return false;
