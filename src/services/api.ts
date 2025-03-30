@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Plan } from "@/components/admin/plans/types";
 import { nanoid } from 'nanoid';
@@ -457,13 +456,13 @@ export const createTestAccounts = async () => {
     }
     
     // Verifica se o usuário comum já existe
-    const userExists = existingUsers?.users.some(user => 
-      user.email === "usuario@teste.com"
+    const userExists = existingUsers?.users?.some(user => 
+      user?.email === "usuario@teste.com"
     );
     
     // Verifica se o admin já existe
-    const adminExists = existingUsers?.users.some(user => 
-      user.email === "admin@teste.com"
+    const adminExists = existingUsers?.users?.some(user => 
+      user?.email === "admin@teste.com"
     );
     
     // Cria o usuário comum se não existir
