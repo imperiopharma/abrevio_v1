@@ -39,14 +39,14 @@ async function createOrConfirmTestAccount(
 ) {
   try {
     // Check if user already exists
-    const { data: users, error: getUserError } = await supabase.auth.admin.listUsers();
+    const { data, error: getUserError } = await supabase.auth.admin.listUsers();
     
     if (getUserError) {
       console.error(`Erro ao verificar se o email ${email} já existe:`, getUserError);
       return { success: false, error: getUserError };
     }
     
-    const existingUser = users?.users.find(u => u.email === email);
+    const existingUser = data?.users.find(u => u.email === email);
     
     if (existingUser) {
       // User exists, check if their email is confirmed
