@@ -455,13 +455,21 @@ export const createTestAccounts = async () => {
       return;
     }
     
+    // Define o tipo explícito para os usuários
+    type UserWithEmail = {
+      email?: string;
+      user_metadata?: {
+        role?: string;
+      };
+    };
+    
     // Verifica se o usuário comum já existe
-    const userExists = existingUsers?.users?.some(user => 
+    const userExists = existingUsers?.users?.some((user: UserWithEmail) => 
       user?.email === "usuario@teste.com"
     );
     
     // Verifica se o admin já existe
-    const adminExists = existingUsers?.users?.some(user => 
+    const adminExists = existingUsers?.users?.some((user: UserWithEmail) => 
       user?.email === "admin@teste.com"
     );
     
