@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Outlet } from 'react-router-dom';
 import { Transition } from '@/components/animations/Transition';
 import { Button } from '@/components/ui/button';
@@ -8,10 +9,14 @@ import MyLinks from '@/components/MyLinks';
 import WhatsAppQR from '@/components/WhatsAppQR';
 import DashboardHome from '@/components/DashboardHome';
 import { Link2, Link, QrCode, Smartphone, BarChart3, LogOut, Menu, X } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('home');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
 
   const tabs = [
     { id: 'home', label: 'Dashboard', icon: <BarChart3 size={18} /> },
@@ -20,6 +25,17 @@ const Dashboard = () => {
     { id: 'whatsapp', label: 'WhatsApp QR', icon: <Smartphone size={18} /> },
     { id: 'bio', label: 'Minha Bio', icon: <QrCode size={18} /> }
   ];
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast('Você saiu com sucesso');
+      navigate('/login');
+    } catch (error) {
+      console.error('Erro ao sair:', error);
+      toast('Erro ao sair da conta');
+    }
+  };
 
   const renderContent = () => {
     switch (activeTab) {
@@ -59,9 +75,7 @@ const Dashboard = () => {
               variant="ghost"
               size="icon"
               className="text-white hover:bg-white/10 hidden md:flex"
-              onClick={() => {
-                // Sign out logic will be implemented here
-              }}
+              onClick={handleSignOut}
             >
               <LogOut size={20} />
             </Button>
@@ -116,9 +130,7 @@ const Dashboard = () => {
             
             <div className="mt-8 pt-8 border-t border-gray-800">
               <button
-                onClick={() => {
-                  // Sign out logic will be implemented
-                }}
+                onClick={handleSignOut}
                 className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-300 text-left text-gray-400 hover:text-white hover:bg-white/5"
               >
                 <LogOut size={18} />
@@ -165,7 +177,7 @@ const Dashboard = () => {
                 <li>
                   <button
                     onClick={() => {
-                      // Sign out logic will be implemented
+                      handleSignOut();
                       setIsMobileMenuOpen(false);
                     }}
                     className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-300 text-left text-gray-400 hover:text-white hover:bg-white/5"

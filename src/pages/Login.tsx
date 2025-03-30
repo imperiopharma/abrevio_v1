@@ -1,23 +1,22 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { Transition } from '@/components/animations/Transition';
 
 const Login = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const { signIn, user } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (user) {
       navigate('/dashboard');
     }
@@ -38,7 +37,9 @@ const Login = () => {
     setLoading(true);
     
     try {
-      await signIn(email, password);
+      const result = await signIn(email, password);
+      console.log('Login result:', result);
+      
       toast({
         title: 'Login realizado com sucesso',
         description: 'Você será redirecionado para o dashboard',
@@ -46,9 +47,20 @@ const Login = () => {
       navigate('/dashboard');
     } catch (error: any) {
       console.error('Erro no login:', error);
+      
+      let errorMessage = 'Verifique suas credenciais e tente novamente';
+      
+      if (error.message) {
+        if (error.message.includes('Invalid login credentials')) {
+          errorMessage = 'Credenciais inválidas. Verifique seu email e senha.';
+        } else if (error.message.includes('Email not confirmed')) {
+          errorMessage = 'Email não confirmado. Verifique sua caixa de entrada.';
+        }
+      }
+      
       toast({
         title: 'Erro no login',
-        description: error.message || 'Verifique suas credenciais e tente novamente',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {

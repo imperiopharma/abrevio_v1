@@ -5,6 +5,7 @@ import { User } from "@supabase/supabase-js";
 // Autenticação
 export const signIn = async (email: string, password: string) => {
   try {
+    console.log('Attempting to sign in with:', email);
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -15,6 +16,7 @@ export const signIn = async (email: string, password: string) => {
       throw error;
     }
     
+    console.log('Sign in successful:', data.user?.email);
     return data;
   } catch (error) {
     console.error('Sign in exception:', error);
@@ -43,12 +45,15 @@ export const signUp = async (email: string, password: string) => {
 
 export const signOut = async () => {
   try {
+    console.log('Attempting to sign out');
     const { error } = await supabase.auth.signOut();
     
     if (error) {
       console.error('Sign out error:', error);
       throw error;
     }
+    
+    console.log('Sign out successful');
   } catch (error) {
     console.error('Sign out exception:', error);
     throw error;

@@ -1,7 +1,8 @@
 
-import React from 'react';
-import { Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -10,6 +11,17 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, isAdmin = false }) => {
   const { user, loading, session } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && !session) {
+      toast({
+        title: 'Acesso restrito',
+        description: 'Você precisa estar logado para acessar esta página',
+        variant: 'destructive',
+      });
+    }
+  }, [loading, session]);
 
   // Enquanto carrega, mostra um spinner
   if (loading) {
@@ -30,6 +42,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, isAdmin = fal
   if (isAdmin) {
     const isUserAdmin = user.user_metadata?.role === 'admin';
     if (!isUserAdmin) {
+      toast({
+        title: 'Acesso restrito',
+        description: 'Você não tem permissão para acessar esta área',
+        variant: 'destructive',
+      });
       return <Navigate to="/dashboard" replace />;
     }
   }
