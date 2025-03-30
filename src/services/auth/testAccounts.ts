@@ -1,5 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
+import { AdminUserAttributes } from "@supabase/supabase-js";
 
 // Function to create and confirm test accounts for development
 export const createTestAccounts = async () => {
@@ -46,7 +47,10 @@ async function createOrConfirmTestAccount(
       return { success: false, error: getUserError };
     }
     
-    const existingUser = data?.users.find(u => u.email === email);
+    // Properly type the users array to fix the TypeScript error
+    const existingUser = data?.users && data.users.length > 0 
+      ? data.users.find(u => u.email === email) 
+      : undefined;
     
     if (existingUser) {
       // User exists, check if their email is confirmed
