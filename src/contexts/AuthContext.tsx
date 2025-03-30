@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { signIn, signUp, signOut } from '@/services/api';
+import { signIn, signUp, signOut } from '@/services';
 import { toast } from 'sonner';
 
 type AuthContextType = {

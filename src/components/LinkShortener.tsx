@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -6,13 +5,14 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import GlassCard from '@/components/ui/GlassCard';
 import { Transition } from '@/components/animations/Transition';
-import { Copy, Check, Link2, Calendar } from 'lucide-react';
-import { shortenLink } from '@/services/api';
+import { Copy, Check, Link2 } from 'lucide-react';
+import { shortenLink } from '@/services';
 import { useAuth } from '@/contexts/AuthContext';
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { Calendar } from 'lucide-react';
 
 const LinkShortener = () => {
   const { toast } = useToast();

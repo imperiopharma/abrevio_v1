@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -8,7 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import GlassCard from '@/components/ui/GlassCard';
 import { Transition } from '@/components/animations/Transition';
 import QRCodeModal from '@/components/QRCodeModal';
-import { Send, Copy, Check, Download, QrCode, Smartphone } from 'lucide-react';
+import { Send, Copy, Check, QrCode, Smartphone } from 'lucide-react';
 
 const WhatsAppQR = () => {
   const { toast } = useToast();
@@ -25,7 +24,6 @@ const WhatsAppQR = () => {
   const validateForm = () => {
     const newErrors: { phoneNumber?: string } = {};
     
-    // Validate phone number
     if (!phoneNumber) {
       newErrors.phoneNumber = 'Por favor, informe o número de telefone';
     } else if (!/^\+?[0-9\s]+$/.test(phoneNumber)) {
@@ -44,14 +42,10 @@ const WhatsAppQR = () => {
     setIsSubmitting(true);
     
     try {
-      // Format phone number - remove any non-digit characters
       const formattedPhone = phoneNumber.replace(/\D/g, '');
       
-      // Create WhatsApp link
       const whatsappLink = `https://wa.me/${formattedPhone}${message ? `?text=${encodeURIComponent(message)}` : ''}`;
       
-      // TODO: Implement the actual link shortening with Supabase
-      // For now, simulate a success response
       setTimeout(() => {
         setGeneratedLink(whatsappLink);
         
@@ -235,7 +229,6 @@ const WhatsAppQR = () => {
         </div>
       </Transition>
       
-      {/* QR Code Modal */}
       <QRCodeModal
         isOpen={qrCodeModalOpen}
         onClose={() => setQrCodeModalOpen(false)}

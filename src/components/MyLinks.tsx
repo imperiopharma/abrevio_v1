@@ -6,7 +6,7 @@ import { LinkType } from '@/components/links/types';
 import SearchBar from '@/components/links/SearchBar';
 import LinkItem from '@/components/links/LinkItem';
 import EmptyState from '@/components/links/EmptyState';
-import { fetchUserLinks } from '@/services/api';
+import { fetchUserLinks } from '@/services';
 import { useAuth } from '@/contexts/AuthContext';
 import LinkStatsModal from '@/components/links/LinkStatsModal';
 import { Skeleton } from '@/components/ui/skeleton';
