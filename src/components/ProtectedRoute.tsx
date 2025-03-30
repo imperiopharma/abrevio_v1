@@ -19,9 +19,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, isAdmin = fal
   useEffect(() => {
     const setupTestAccounts = async () => {
       try {
-        await createTestAccounts();
+        console.log("Iniciando criação de contas de teste...");
+        const result = await createTestAccounts();
+        console.log("Resultado da criação de contas de teste:", result);
       } catch (error) {
-        console.error('Error creating test accounts:', error);
+        console.error('Erro ao criar contas de teste:', error);
       }
     };
     

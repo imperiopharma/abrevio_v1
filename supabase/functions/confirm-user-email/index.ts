@@ -24,6 +24,8 @@ serve(async (req) => {
       );
     }
 
+    console.log(`Attempting to confirm email for: ${email}`);
+
     // Create a Supabase client with the service role key
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -36,14 +38,67 @@ serve(async (req) => {
       }
     );
 
-    // Simulating email confirmation by setting the user as confirmed
-    // This would typically be done by Supabase automatically, but we're bypassing it for test accounts
+    // Find the user by email
+    const { data: userData, error: userError } = await supabaseAdmin
+      .from('users')
+      .select('id')
+      .eq('email', email)
+      .maybeSingle();
+
+    if (userError) {
+      console.error('Error fetching user:', userError);
+      throw userError;
+    }
+
+    if (!userData) {
+      // If user not found in main table, try to find in auth.users
+      const { data: authUsers, error: authError } = await supabaseAdmin.auth.admin.listUsers();
+      
+      if (authError) {
+        console.error('Error listing users:', authError);
+        throw authError;
+      }
+      
+      const user = authUsers.users.find(u => u.email === email);
+      
+      if (!user) {
+        return new Response(
+          JSON.stringify({ error: 'User not found' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
+        );
+      }
+      
+      // Manually confirm the user's email using the admin API
+      const { error } = await supabaseAdmin.auth.admin.updateUserById(
+        user.id,
+        { email_confirm: true }
+      );
+      
+      if (error) {
+        console.error('Error confirming email:', error);
+        throw error;
+      }
+      
+      console.log(`Email confirmed for: ${email}`);
+      
+      return new Response(
+        JSON.stringify({ success: true, message: 'Email confirmed successfully' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+      );
+    }
+
+    // If we found the user in the public schema, let's try the admin API
     const { error } = await supabaseAdmin.auth.admin.updateUserById(
-      '00000000-0000-0000-0000-000000000000', // This will be ignored, we find by email below
+      userData.id,
       { email_confirm: true }
     );
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error confirming email:', error);
+      throw error;
+    }
+
+    console.log(`Email confirmed for: ${email}`);
 
     return new Response(
       JSON.stringify({ success: true, message: 'Email confirmed successfully' }),
