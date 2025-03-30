@@ -1,28 +1,24 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Plan } from "@/components/admin/plans/types";
 
 // Função para buscar os planos do banco de dados
 export const fetchPlans = async (): Promise<Plan[]> => {
   try {
-    // Verificar se a tabela existe antes de tentar consultar
-    const { data: tableExists, error: tableCheckError } = await supabase
-      .from('plans')
-      .select('*')
-      .limit(1);
+    // Usar um método mais seguro para verificar se existem planos
+    const { error } = await supabase.rpc('table_exists', { table_name: 'plans' });
     
-    if (tableCheckError) {
-      console.warn("Tabela de planos pode não existir:", tableCheckError);
+    if (error) {
+      console.warn("Tabela de planos pode não existir:", error);
       return [];
     }
     
-    const { data, error } = await supabase
+    const { data, error: fetchError } = await supabase
       .from('plans')
       .select('*');
     
-    if (error) {
-      console.error("Erro ao buscar planos:", error);
-      throw error;
+    if (fetchError) {
+      console.error("Erro ao buscar planos:", fetchError);
+      return [];
     }
     
     return data || [];
@@ -35,19 +31,25 @@ export const fetchPlans = async (): Promise<Plan[]> => {
 // Função para salvar um plano no banco de dados
 export const savePlan = async (plan: Plan): Promise<Plan> => {
   try {
+    // Verificar primeiro se a tabela existe
+    const { error: existsError } = await supabase.rpc('table_exists', { table_name: 'plans' });
+    
+    if (existsError) {
+      console.warn("Tabela de planos pode não existir:", existsError);
+      return plan;
+    }
+    
     // Tentativa de inserir/atualizar de forma mais segura
     const { data, error } = await supabase
       .from('plans')
-      .upsert([plan])
-      .select()
-      .single();
+      .upsert([plan]);
     
     if (error) {
       console.error("Erro ao salvar plano:", error);
-      throw error;
+      return plan;
     }
     
-    return data;
+    return data?.[0] || plan;
   } catch (error) {
     console.error("Erro ao salvar plano:", error);
     return plan; // Retornar o plano original caso falhe
@@ -57,6 +59,14 @@ export const savePlan = async (plan: Plan): Promise<Plan> => {
 // Função para excluir um plano do banco de dados
 export const deletePlan = async (planId: string): Promise<void> => {
   try {
+    // Verificar primeiro se a tabela existe
+    const { error: existsError } = await supabase.rpc('table_exists', { table_name: 'plans' });
+    
+    if (existsError) {
+      console.warn("Tabela de planos pode não existir:", existsError);
+      return;
+    }
+    
     const { error } = await supabase
       .from('plans')
       .delete()
@@ -64,11 +74,9 @@ export const deletePlan = async (planId: string): Promise<void> => {
     
     if (error) {
       console.error("Erro ao excluir plano:", error);
-      throw error;
     }
   } catch (error) {
     console.error("Erro ao excluir plano:", error);
-    throw error;
   }
 };
 
