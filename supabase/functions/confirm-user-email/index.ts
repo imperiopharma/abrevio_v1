@@ -38,68 +38,39 @@ serve(async (req) => {
       }
     );
 
-    // Find the user by email
-    const { data: userData, error: userError } = await supabaseAdmin
-      .from('users')
-      .select('id')
-      .eq('email', email)
-      .maybeSingle();
-
-    if (userError) {
-      console.error('Error fetching user:', userError);
-      throw userError;
+    // Lista todos os usuários para encontrar o que tem o email correspondente
+    const { data: authUsers, error: authError } = await supabaseAdmin.auth.admin.listUsers();
+    
+    if (authError) {
+      console.error('Error listing users:', authError);
+      throw authError;
     }
-
-    if (!userData) {
-      // If user not found in main table, try to find in auth.users
-      const { data: authUsers, error: authError } = await supabaseAdmin.auth.admin.listUsers();
-      
-      if (authError) {
-        console.error('Error listing users:', authError);
-        throw authError;
-      }
-      
-      const user = authUsers.users.find(u => u.email === email);
-      
-      if (!user) {
-        return new Response(
-          JSON.stringify({ error: 'User not found' }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
-        );
-      }
-      
-      // Manually confirm the user's email using the admin API
-      const { error } = await supabaseAdmin.auth.admin.updateUserById(
-        user.id,
-        { email_confirm: true }
-      );
-      
-      if (error) {
-        console.error('Error confirming email:', error);
-        throw error;
-      }
-      
-      console.log(`Email confirmed for: ${email}`);
-      
+    
+    // Encontra o usuário com o email correspondente
+    const user = authUsers.users.find(u => u.email === email);
+    
+    if (!user) {
       return new Response(
-        JSON.stringify({ success: true, message: 'Email confirmed successfully' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+        JSON.stringify({ error: 'User not found', debug: `Email ${email} not found in users list` }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
       );
     }
-
-    // If we found the user in the public schema, let's try the admin API
+    
+    console.log(`Found user with ID ${user.id} for email ${email}`);
+    
+    // Confirma o email do usuário usando a API de administração
     const { error } = await supabaseAdmin.auth.admin.updateUserById(
-      userData.id,
+      user.id,
       { email_confirm: true }
     );
-
+    
     if (error) {
       console.error('Error confirming email:', error);
       throw error;
     }
-
+    
     console.log(`Email confirmed for: ${email}`);
-
+    
     return new Response(
       JSON.stringify({ success: true, message: 'Email confirmed successfully' }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }

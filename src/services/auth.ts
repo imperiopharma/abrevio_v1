@@ -154,9 +154,11 @@ export const createTestAccounts = async () => {
           return { success: true, alreadyExists: true };
         }
         
-        // Se o erro não for de credenciais inválidas, pode ser que a conta exista mas não está confirmada
-        if (loginError && !loginError.message.includes('Invalid login')) {
-          console.log(`Conta ${role} pode existir, mas há um erro:`, loginError);
+        // Se o erro for "Email not confirmed", tenta confirmar o email
+        if (loginError && loginError.message.includes('Email not confirmed')) {
+          console.log(`Conta ${role} existe, mas email não está confirmado. Tentando confirmar...`);
+          await confirmEmail(email);
+          return { success: true };
         }
         
         // Tenta criar a conta
@@ -172,27 +174,19 @@ export const createTestAccounts = async () => {
           // Se der erro que já está registrado, tente confirmar o email
           if (signUpError.message.includes('already registered')) {
             console.log(`Email ${email} já registrado, tentando confirmar...`);
+            await confirmEmail(email);
+            return { success: true };
           } else {
             console.error(`Erro ao criar ${role}:`, signUpError);
             return { success: false, error: signUpError };
           }
         } else {
-          console.log(`Conta ${role} criada!`);
+          console.log(`Conta ${role} criada! ID: ${signUpData.user?.id}`);
         }
         
         // Auto-confirmar email para testes
         try {
-          console.log(`Tentando confirmar email para ${email}...`);
-          const { error: confirmError } = await supabase.functions.invoke('confirm-user-email', {
-            body: { email }
-          });
-          
-          if (confirmError) {
-            console.error(`Erro ao confirmar email para ${email}:`, confirmError);
-            return { success: false, error: confirmError };
-          }
-          
-          console.log(`Email para ${email} confirmado com sucesso!`);
+          await confirmEmail(email);
           return { success: true };
         } catch (confirmErr) {
           console.error(`Erro na função de confirmar email para ${email}:`, confirmErr);
@@ -202,6 +196,20 @@ export const createTestAccounts = async () => {
         console.error(`Erro ao processar conta ${role}:`, err);
         return { success: false, error: err };
       }
+    };
+    
+    const confirmEmail = async (email) => {
+      console.log(`Tentando confirmar email para ${email}...`);
+      const { error } = await supabase.functions.invoke('confirm-user-email', {
+        body: { email }
+      });
+      
+      if (error) {
+        console.error(`Erro ao confirmar email para ${email}:`, error);
+        throw error;
+      }
+      
+      console.log(`Email para ${email} confirmado com sucesso!`);
     };
     
     // Criar conta de usuário comum

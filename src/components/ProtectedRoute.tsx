@@ -22,6 +22,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, isAdmin = fal
         console.log("Iniciando criação de contas de teste...");
         const result = await createTestAccounts();
         console.log("Resultado da criação de contas de teste:", result);
+        
+        // Se a criação foi bem-sucedida, notifica o usuário
+        if (result.success) {
+          toast.success("Contas de teste criadas com sucesso", {
+            description: "Use os botões na tela de login para testar"
+          });
+        }
       } catch (error) {
         console.error('Erro ao criar contas de teste:', error);
       }
