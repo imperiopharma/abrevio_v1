@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link, QrCode, Database, Globe, Tag } from 'lucide-react';
+import { Link, QrCode, Database, Globe, Tag, Users } from 'lucide-react';
 import { Plan } from './types';
 
 // Ícones para os recursos
@@ -17,7 +17,7 @@ export const getFeatureIcon = (featureId: string) => {
     case 'custom_domain':
       return <Globe className="h-4 w-4" />;
     case 'team':
-      return <Globe className="h-4 w-4" />;
+      return <Users className="h-4 w-4" />;
     default:
       return <Tag className="h-4 w-4" />;
   }
