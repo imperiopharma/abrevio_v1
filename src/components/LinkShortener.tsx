@@ -6,12 +6,21 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import GlassCard from '@/components/ui/GlassCard';
 import { Transition } from '@/components/animations/Transition';
-import { Copy, Check, Link2 } from 'lucide-react';
+import { Copy, Check, Link2, Calendar } from 'lucide-react';
+import { shortenLink } from '@/services/api';
+import { useAuth } from '@/contexts/AuthContext';
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 const LinkShortener = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [originalUrl, setOriginalUrl] = useState('');
   const [slug, setSlug] = useState('');
+  const [title, setTitle] = useState('');
+  const [date, setDate] = useState<Date | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [shortenedLink, setShortenedLink] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -48,25 +57,43 @@ const LinkShortener = () => {
     
     if (!validateForm()) return;
     
+    if (!user) {
+      toast({
+        title: "Login necessário",
+        description: "Você precisa estar logado para encurtar links.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setIsSubmitting(true);
     
     try {
-      // TODO: Implement the actual link shortening logic with Supabase
-      // For now, simulate a success response
-      setTimeout(() => {
-        const generatedSlug = slug || Math.random().toString(36).substring(2, 8);
-        const shortenedUrl = `https://abrev.io/${generatedSlug}`;
-        setShortenedLink(shortenedUrl);
+      const result = await shortenLink(
+        originalUrl, 
+        slug || undefined, 
+        title || undefined, 
+        date ? date.toISOString() : undefined
+      );
+      
+      if (result) {
+        setShortenedLink(`https://${result.short_url}`);
         
         toast({
           title: "Link encurtado com sucesso!",
           description: "Seu link está pronto para compartilhar.",
         });
-      }, 1500);
-    } catch (error) {
+      } else {
+        toast({
+          title: "Erro ao encurtar link",
+          description: "Tente novamente mais tarde.",
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
       toast({
         title: "Erro ao encurtar link",
-        description: "Tente novamente mais tarde.",
+        description: error.message || "Tente novamente mais tarde.",
         variant: "destructive",
       });
     } finally {
@@ -112,6 +139,19 @@ const LinkShortener = () => {
             </div>
             
             <div className="space-y-2">
+              <Label htmlFor="title" className="text-gray-200">
+                Título (opcional)
+              </Label>
+              <Input
+                id="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Meu link encurtado"
+                className="bg-white/5 border border-gray-700 text-white focus:border-abrev-blue transition-all duration-300"
+              />
+            </div>
+            
+            <div className="space-y-2">
               <Label htmlFor="slug" className="text-gray-200">
                 Apelido (opcional)
               </Label>
@@ -131,6 +171,45 @@ const LinkShortener = () => {
               <p className="text-gray-400 text-sm">
                 Deixe em branco para gerar um apelido aleatório.
               </p>
+            </div>
+            
+            <div className="space-y-2">
+              <Label className="text-gray-200">
+                Data de expiração (opcional)
+              </Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start text-left font-normal bg-white/5 border border-gray-700 text-gray-300"
+                  >
+                    <Calendar className="mr-2 h-4 w-4" />
+                    {date ? format(date, "PPP", { locale: ptBR }) : "Selecione uma data"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0 bg-abrev-dark-accent border-gray-700">
+                  <CalendarComponent
+                    mode="single"
+                    selected={date}
+                    onSelect={setDate}
+                    initialFocus
+                    disabled={(date) => date < new Date(new Date().setDate(new Date().getDate() - 1))}
+                  />
+                </PopoverContent>
+              </Popover>
+              {date && (
+                <div className="flex items-center">
+                  <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-gray-400 hover:text-gray-300 p-0"
+                    onClick={() => setDate(undefined)}
+                  >
+                    Remover data
+                  </Button>
+                </div>
+              )}
             </div>
             
             <Button

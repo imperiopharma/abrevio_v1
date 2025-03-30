@@ -1,14 +1,16 @@
 
 export interface LinkType {
   id: string;
-  shortUrl: string;
-  originalUrl: string;
+  user_id: string;
+  short_url: string;
+  original_url: string;
+  slug: string;
+  title?: string;
   clicks: number;
-  dateCreated: string;
+  is_active: boolean;
+  expires_at?: string | null;
+  created_at: string;
   tags?: string[];
-  isActive?: boolean;
-  expiresAt?: string | null;
-  metadata?: Record<string, any>;
 }
 
 export interface QRCodeSettings {
@@ -16,10 +18,4 @@ export interface QRCodeSettings {
   margin?: number;
   dark?: string;
   light?: string;
-  logo?: string;
-  logoWidth?: number;
-  logoHeight?: number;
-  logoOpacity?: number;
-  dotStyle?: 'square' | 'rounded' | 'dots' | 'classy';
-  errorCorrectionLevel?: 'L' | 'M' | 'Q' | 'H';
 }

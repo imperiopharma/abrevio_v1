@@ -9,13 +9,148 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      clicks: {
+        Row: {
+          browser: string | null
+          city: string | null
+          country: string | null
+          created_at: string | null
+          device: string | null
+          id: string
+          ip: string | null
+          link_id: string | null
+          os: string | null
+          referer: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          browser?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string | null
+          device?: string | null
+          id?: string
+          ip?: string | null
+          link_id?: string | null
+          os?: string | null
+          referer?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          browser?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string | null
+          device?: string | null
+          id?: string
+          ip?: string | null
+          link_id?: string | null
+          os?: string | null
+          referer?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clicks_link_id_fkey"
+            columns: ["link_id"]
+            isOneToOne: false
+            referencedRelation: "links"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      links: {
+        Row: {
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          original_url: string
+          short_url: string
+          slug: string
+          tags: string[] | null
+          title: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          original_url: string
+          short_url: string
+          slug: string
+          tags?: string[] | null
+          title?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          original_url?: string
+          short_url?: string
+          slug?: string
+          tags?: string[] | null
+          title?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      qr_codes: {
+        Row: {
+          background: string | null
+          color: string | null
+          created_at: string | null
+          id: string
+          link_id: string | null
+          logo_url: string | null
+          margin: number | null
+          size: number | null
+          user_id: string | null
+        }
+        Insert: {
+          background?: string | null
+          color?: string | null
+          created_at?: string | null
+          id?: string
+          link_id?: string | null
+          logo_url?: string | null
+          margin?: number | null
+          size?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          background?: string | null
+          color?: string | null
+          created_at?: string | null
+          id?: string
+          link_id?: string | null
+          logo_url?: string | null
+          margin?: number | null
+          size?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qr_codes_link_id_fkey"
+            columns: ["link_id"]
+            isOneToOne: false
+            referencedRelation: "links"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_random_slug: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
