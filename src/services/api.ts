@@ -444,3 +444,55 @@ export const getCurrentUser = async () => {
     return null;
   }
 };
+
+// Função para criar contas de teste
+export const createTestAccounts = async () => {
+  try {
+    // Verifica se já existe o usuário de teste
+    const { data: existingUsers, error: searchError } = await supabase.auth.admin.listUsers();
+    
+    if (searchError) {
+      console.error("Erro ao verificar usuários existentes:", searchError);
+      return;
+    }
+    
+    // Verifica se o usuário comum já existe
+    const userExists = existingUsers.users.some(user => user.email === "usuario@teste.com");
+    
+    // Verifica se o admin já existe
+    const adminExists = existingUsers.users.some(user => user.email === "admin@teste.com");
+    
+    // Cria o usuário comum se não existir
+    if (!userExists) {
+      const { error: userError } = await supabase.auth.admin.createUser({
+        email: "usuario@teste.com",
+        password: "123456",
+        email_confirm: true
+      });
+      
+      if (userError) {
+        console.error("Erro ao criar usuário de teste:", userError);
+      } else {
+        console.log("Usuário de teste criado com sucesso");
+      }
+    }
+    
+    // Cria o usuário admin se não existir
+    if (!adminExists) {
+      const { error: adminError } = await supabase.auth.admin.createUser({
+        email: "admin@teste.com",
+        password: "123456",
+        email_confirm: true,
+        user_metadata: { role: "admin" }
+      });
+      
+      if (adminError) {
+        console.error("Erro ao criar admin de teste:", adminError);
+      } else {
+        console.log("Admin de teste criado com sucesso");
+      }
+    }
+  } catch (error) {
+    console.error("Erro ao criar contas de teste:", error);
+  }
+};

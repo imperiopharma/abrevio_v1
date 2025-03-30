@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -53,6 +54,17 @@ const Login = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Funções para login rápido com contas de teste
+  const loginAsUser = () => {
+    setEmail("usuario@teste.com");
+    setPassword("123456");
+  };
+
+  const loginAsAdmin = () => {
+    setEmail("admin@teste.com");
+    setPassword("123456");
   };
 
   return (
@@ -113,6 +125,32 @@ const Login = () => {
                       onChange={(e) => setPassword(e.target.value)}
                       className="bg-abrev-dark/50 border-gray-700"
                     />
+                  </div>
+                  
+                  {/* Botões de login rápido */}
+                  <div className="pt-2">
+                    <p className="text-sm text-gray-400 mb-2">Contas para teste:</p>
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={loginAsUser}
+                        className="text-xs flex-1 bg-abrev-dark/50 border-gray-700 hover:bg-gray-800"
+                      >
+                        Usuário
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={loginAsAdmin}
+                        className="text-xs flex-1 bg-abrev-dark/50 border-gray-700 hover:bg-gray-800"
+                      >
+                        Admin
+                      </Button>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1 text-center">
+                      (Clique para preencher as credenciais)
+                    </p>
                   </div>
                 </CardContent>
                 <CardFooter className="flex flex-col space-y-4">

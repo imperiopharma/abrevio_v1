@@ -25,14 +25,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, isAdmin = fal
     return <Navigate to="/login" replace />;
   }
 
-  // Se for uma rota de admin, verificar permissões (a ser implementado)
+  // Se for uma rota de admin, verificar permissões
   if (isAdmin) {
-    // Aqui você pode adicionar verificação adicional para roles de admin
-    // Por simplicidade, vamos apenas permitir acesso a todos os usuários autenticados agora
-    // const isUserAdmin = user.app_metadata?.role === 'admin';
-    // if (!isUserAdmin) {
-    //   return <Navigate to="/dashboard" replace />;
-    // }
+    const isUserAdmin = user.user_metadata?.role === 'admin';
+    if (!isUserAdmin) {
+      return <Navigate to="/dashboard" replace />;
+    }
   }
 
   return <>{children}</>;
