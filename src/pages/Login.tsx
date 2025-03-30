@@ -67,7 +67,7 @@ const Login = () => {
       </div>
       
       <div className="flex-1 flex flex-col justify-center items-center p-6">
-        <Transition type="scale-up">
+        <Transition type="fade">
           <div className="w-full max-w-md">
             <div className="text-center mb-8">
               <Link to="/" className="inline-block">

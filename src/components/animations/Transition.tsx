@@ -53,12 +53,15 @@ export const Transition: React.FC<TransitionProps> = ({
     },
   };
 
+  // Make sure type is a valid key before accessing it
+  const validType = Object.keys(variants).includes(type) ? type : 'fade';
+  
   return (
     <motion.div
       className={className}
-      initial={variants[type].initial}
-      animate={variants[type].animate}
-      exit={variants[type].exit}
+      initial={variants[validType].initial}
+      animate={variants[validType].animate}
+      exit={variants[validType].exit}
       transition={{ duration, delay, ease: 'easeOut' }}
     >
       {children}
