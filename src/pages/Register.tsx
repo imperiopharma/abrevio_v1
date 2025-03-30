@@ -1,55 +1,47 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { Transition } from '@/components/animations/Transition';
+import { AlertCircle, Loader2 } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const Register = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const { signUp, user } = useAuth();
+  const { signUp, isAuthenticated, loading: authLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  React.useEffect(() => {
-    if (user) {
+  useEffect(() => {
+    if (isAuthenticated && !authLoading) {
       navigate('/dashboard');
     }
-  }, [user, navigate]);
+  }, [isAuthenticated, authLoading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     
     if (!email || !password || !confirmPassword) {
-      toast({
-        title: 'Campos obrigatórios',
-        description: 'Por favor, preencha todos os campos',
-        variant: 'destructive',
-      });
+      setError('Por favor, preencha todos os campos');
       return;
     }
     
     if (password !== confirmPassword) {
-      toast({
-        title: 'Senhas não conferem',
-        description: 'A senha e a confirmação de senha devem ser iguais',
-        variant: 'destructive',
-      });
+      setError('A senha e a confirmação de senha devem ser iguais');
       return;
     }
     
     if (password.length < 6) {
-      toast({
-        title: 'Senha muito curta',
-        description: 'A senha deve ter pelo menos 6 caracteres',
-        variant: 'destructive',
-      });
+      setError('A senha deve ter pelo menos 6 caracteres');
       return;
     }
     
@@ -64,15 +56,22 @@ const Register = () => {
       navigate('/login');
     } catch (error: any) {
       console.error('Erro no cadastro:', error);
-      toast({
-        title: 'Erro no cadastro',
-        description: error.message || 'Não foi possível criar sua conta',
-        variant: 'destructive',
-      });
+      setError(error.message || 'Não foi possível criar sua conta');
     } finally {
       setLoading(false);
     }
   };
+
+  if (authLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-abrev-dark">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-12 w-12 animate-spin text-abrev-blue" />
+          <p className="text-white">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-abrev-dark">
@@ -101,6 +100,16 @@ const Register = () => {
                   Registre-se para começar a usar a plataforma Abrev.io
                 </CardDescription>
               </CardHeader>
+              
+              {error && (
+                <div className="px-6 mb-4">
+                  <Alert variant="destructive" className="bg-red-900/20 border-red-800">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription className="ml-2">{error}</AlertDescription>
+                  </Alert>
+                </div>
+              )}
+              
               <form onSubmit={handleSubmit}>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
@@ -112,6 +121,7 @@ const Register = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="bg-abrev-dark/50 border-gray-700"
+                      disabled={loading}
                     />
                   </div>
                   <div className="space-y-2">
@@ -123,6 +133,7 @@ const Register = () => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className="bg-abrev-dark/50 border-gray-700"
+                      disabled={loading}
                     />
                   </div>
                   <div className="space-y-2">
@@ -134,6 +145,7 @@ const Register = () => {
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       className="bg-abrev-dark/50 border-gray-700"
+                      disabled={loading}
                     />
                   </div>
                 </CardContent>
@@ -145,7 +157,7 @@ const Register = () => {
                   >
                     {loading ? (
                       <>
-                        <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-t-transparent"></span>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Criando conta...
                       </>
                     ) : (

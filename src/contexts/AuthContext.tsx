@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { signIn, signUp, signOut } from '@/services';
+import { signIn, signUp, signOut, resetPassword, updatePassword } from '@/services';
 import { toast } from 'sonner';
 
 type AuthContextType = {
@@ -12,6 +12,9 @@ type AuthContextType = {
   signIn: (email: string, password: string) => Promise<any>;
   signUp: (email: string, password: string) => Promise<any>;
   signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<any>;
+  updatePassword: (newPassword: string) => Promise<any>;
+  isAuthenticated: boolean;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -20,6 +23,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const isAuthenticated = !!session && !!user;
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -60,6 +64,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     signIn,
     signUp,
     signOut,
+    resetPassword,
+    updatePassword,
+    isAuthenticated,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

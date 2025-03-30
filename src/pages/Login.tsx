@@ -8,29 +8,29 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { Transition } from '@/components/animations/Transition';
+import { AlertCircle, Loader2 } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const Login = () => {
   const navigate = useNavigate();
-  const { signIn, user } = useAuth();
+  const { signIn, isAuthenticated, loading: authLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (user) {
+    if (isAuthenticated && !authLoading) {
       navigate('/dashboard');
     }
-  }, [user, navigate]);
+  }, [isAuthenticated, authLoading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     
     if (!email || !password) {
-      toast({
-        title: 'Campos obrigatórios',
-        description: 'Por favor, preencha todos os campos',
-        variant: 'destructive',
-      });
+      setError('Por favor, preencha todos os campos');
       return;
     }
     
@@ -47,22 +47,7 @@ const Login = () => {
       navigate('/dashboard');
     } catch (error: any) {
       console.error('Erro no login:', error);
-      
-      let errorMessage = 'Verifique suas credenciais e tente novamente';
-      
-      if (error.message) {
-        if (error.message.includes('Invalid login credentials')) {
-          errorMessage = 'Credenciais inválidas. Verifique seu email e senha.';
-        } else if (error.message.includes('Email not confirmed')) {
-          errorMessage = 'Email não confirmado. Verifique sua caixa de entrada.';
-        }
-      }
-      
-      toast({
-        title: 'Erro no login',
-        description: errorMessage,
-        variant: 'destructive',
-      });
+      setError(error.message || 'Ocorreu um erro ao fazer login. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -78,6 +63,17 @@ const Login = () => {
     setEmail("admin@teste.com");
     setPassword("123456");
   };
+
+  if (authLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-abrev-dark">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-12 w-12 animate-spin text-abrev-blue" />
+          <p className="text-white">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-abrev-dark">
@@ -106,6 +102,16 @@ const Login = () => {
                   Acesse sua conta para gerenciar seus links encurtados
                 </CardDescription>
               </CardHeader>
+              
+              {error && (
+                <div className="px-6 mb-4">
+                  <Alert variant="destructive" className="bg-red-900/20 border-red-800">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription className="ml-2">{error}</AlertDescription>
+                  </Alert>
+                </div>
+              )}
+              
               <form onSubmit={handleSubmit}>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
@@ -117,6 +123,7 @@ const Login = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="bg-abrev-dark/50 border-gray-700"
+                      disabled={loading}
                     />
                   </div>
                   <div className="space-y-2">
@@ -136,6 +143,7 @@ const Login = () => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className="bg-abrev-dark/50 border-gray-700"
+                      disabled={loading}
                     />
                   </div>
                   
@@ -148,6 +156,7 @@ const Login = () => {
                         variant="outline"
                         onClick={loginAsUser}
                         className="text-xs flex-1 bg-abrev-dark/50 border-gray-700 hover:bg-gray-800"
+                        disabled={loading}
                       >
                         Usuário
                       </Button>
@@ -156,6 +165,7 @@ const Login = () => {
                         variant="outline"
                         onClick={loginAsAdmin}
                         className="text-xs flex-1 bg-abrev-dark/50 border-gray-700 hover:bg-gray-800"
+                        disabled={loading}
                       >
                         Admin
                       </Button>
@@ -173,7 +183,7 @@ const Login = () => {
                   >
                     {loading ? (
                       <>
-                        <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-t-transparent"></span>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Entrando...
                       </>
                     ) : (

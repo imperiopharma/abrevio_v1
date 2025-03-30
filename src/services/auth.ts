@@ -1,8 +1,9 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
+import { toast } from "sonner";
 
-// Autenticação
+// Authentication
 export const signIn = async (email: string, password: string) => {
   try {
     console.log('Attempting to sign in with:', email);
@@ -13,7 +14,15 @@ export const signIn = async (email: string, password: string) => {
     
     if (error) {
       console.error('Sign in error:', error);
-      throw error;
+      
+      // Provide more descriptive error messages
+      if (error.message.includes('Invalid login')) {
+        throw new Error('Email ou senha incorretos');
+      } else if (error.message.includes('Email not confirmed')) {
+        throw new Error('Por favor, confirme seu email antes de fazer login');
+      } else {
+        throw error;
+      }
     }
     
     console.log('Sign in successful:', data.user?.email);
@@ -29,11 +38,22 @@ export const signUp = async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        emailRedirectTo: window.location.origin + '/login',
+      }
     });
     
     if (error) {
       console.error('Sign up error:', error);
-      throw error;
+      
+      // Provide more descriptive error messages
+      if (error.message.includes('already registered')) {
+        throw new Error('Este email já está cadastrado');
+      } else if (error.message.includes('password')) {
+        throw new Error('A senha deve ter pelo menos 6 caracteres');
+      } else {
+        throw error;
+      }
     }
     
     return data;
@@ -54,6 +74,8 @@ export const signOut = async () => {
     }
     
     console.log('Sign out successful');
+    // Redirect to home page after sign out
+    window.location.href = '/';
   } catch (error) {
     console.error('Sign out exception:', error);
     throw error;
@@ -73,6 +95,42 @@ export const getCurrentUser = async (): Promise<User | null> => {
   } catch (error) {
     console.error("Erro ao buscar usuário:", error);
     return null;
+  }
+};
+
+export const resetPassword = async (email: string) => {
+  try {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + '/reset-password-confirm',
+    });
+    
+    if (error) {
+      console.error('Reset password error:', error);
+      throw error;
+    }
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Reset password exception:', error);
+    throw error;
+  }
+};
+
+export const updatePassword = async (newPassword: string) => {
+  try {
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+    
+    if (error) {
+      console.error('Update password error:', error);
+      throw error;
+    }
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Update password exception:', error);
+    throw error;
   }
 };
 
