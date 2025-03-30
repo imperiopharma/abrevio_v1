@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -36,11 +37,7 @@ const Login = () => {
     setIsLoading(true);
     
     try {
-      const { error } = await signIn(email, password);
-      
-      if (error) {
-        throw error;
-      }
+      await signIn(email, password);
       
       // Redirect will happen automatically via onAuthStateChange
       toast.success('Login bem-sucedido', {

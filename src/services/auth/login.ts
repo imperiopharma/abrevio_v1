@@ -42,7 +42,6 @@ export const signOut = async () => {
     }
     
     console.log('Sign out successful');
-    // Redirect to home page after sign out
     window.location.href = '/';
   } catch (error) {
     console.error('Sign out exception:', error);

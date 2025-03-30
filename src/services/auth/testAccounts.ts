@@ -1,98 +1,106 @@
 
 import { supabase } from "@/integrations/supabase/client";
 
-// Função para criar contas de teste
+// Function to create and confirm test accounts for development
 export const createTestAccounts = async () => {
   try {
     console.log("Tentando criar contas de teste...");
     
-    // Função auxiliar para criar e confirmar conta
-    const createAndConfirmAccount = async (email, password, role) => {
-      try {
-        // Tenta fazer login para verificar se a conta já existe
-        const { error: loginError } = await supabase.auth.signInWithPassword({
-          email,
-          password
-        });
-        
-        // Se conseguiu fazer login, a conta já existe
-        if (!loginError) {
-          console.log(`Conta ${role} já existe e está confirmada.`);
-          return { success: true, alreadyExists: true };
-        }
-        
-        // Se o erro for "Email not confirmed", tenta confirmar o email
-        if (loginError && loginError.message.includes('Email not confirmed')) {
-          console.log(`Conta ${role} existe, mas email não está confirmado. Tentando confirmar...`);
-          await confirmEmail(email);
-          return { success: true };
-        }
-        
-        // Tenta criar a conta
-        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: { role }
-          }
-        });
-        
-        if (signUpError) {
-          // Se der erro que já está registrado, tente confirmar o email
-          if (signUpError.message.includes('already registered')) {
-            console.log(`Email ${email} já registrado, tentando confirmar...`);
-            await confirmEmail(email);
-            return { success: true };
-          } else {
-            console.error(`Erro ao criar ${role}:`, signUpError);
-            return { success: false, error: signUpError };
-          }
-        } else {
-          console.log(`Conta ${role} criada! ID: ${signUpData.user?.id}`);
-        }
-        
-        // Auto-confirmar email para testes
-        try {
-          await confirmEmail(email);
-          return { success: true };
-        } catch (confirmErr) {
-          console.error(`Erro na função de confirmar email para ${email}:`, confirmErr);
-          return { success: false, error: confirmErr };
-        }
-      } catch (err) {
-        console.error(`Erro ao processar conta ${role}:`, err);
-        return { success: false, error: err };
-      }
+    // Create or confirm user account
+    const userResult = await createOrConfirmTestAccount(
+      "usuario@teste.com",
+      "123456",
+      { role: "user" }
+    );
+    
+    // Create or confirm admin account
+    const adminResult = await createOrConfirmTestAccount(
+      "admin@teste.com",
+      "123456",
+      { role: "admin" }
+    );
+    
+    return {
+      success: true,
+      user: userResult,
+      admin: adminResult
     };
-    
-    const confirmEmail = async (email) => {
-      console.log(`Tentando confirmar email para ${email}...`);
-      const { error } = await supabase.functions.invoke('confirm-user-email', {
-        body: { email }
-      });
-      
-      if (error) {
-        console.error(`Erro ao confirmar email para ${email}:`, error);
-        throw error;
-      }
-      
-      console.log(`Email para ${email} confirmado com sucesso!`);
-    };
-    
-    // Criar conta de usuário comum
-    const userResult = await createAndConfirmAccount("usuario@teste.com", "123456", "user");
-    console.log("Resultado da criação do usuário:", userResult);
-    
-    // Criar conta de administrador
-    const adminResult = await createAndConfirmAccount("admin@teste.com", "123456", "admin");
-    console.log("Resultado da criação do admin:", adminResult);
-    
-    return { success: true, user: userResult, admin: adminResult };
   } catch (error) {
-    console.error("Erro geral ao criar contas de teste:", error);
+    console.error("Erro ao criar contas de teste:", error);
     return { success: false, error };
-  } finally {
-    // Certifique-se de que não há nenhuma sessão ativa após criar as contas
-    await supabase.auth.signOut();
   }
 };
+
+// Helper function to create or confirm a test account
+async function createOrConfirmTestAccount(
+  email: string,
+  password: string,
+  userData: { role: "user" | "admin" }
+) {
+  try {
+    // Check if user already exists
+    const { data: users, error: getUserError } = await supabase.auth.admin.listUsers();
+    
+    if (getUserError) {
+      console.error(`Erro ao verificar se o email ${email} já existe:`, getUserError);
+      return { success: false, error: getUserError };
+    }
+    
+    const existingUser = users?.users.find(u => u.email === email);
+    
+    if (existingUser) {
+      // User exists, check if their email is confirmed
+      if (existingUser.email_confirmed_at) {
+        console.log(`Conta ${email} já existe e está confirmada.`);
+        
+        // Update user metadata to ensure role is set
+        const { error: updateError } = await supabase.auth.admin.updateUserById(
+          existingUser.id,
+          { user_metadata: userData }
+        );
+        
+        if (updateError) {
+          console.error(`Erro ao atualizar metadados para ${email}:`, updateError);
+        }
+        
+        return { success: true, alreadyExists: true };
+      } else {
+        // Email not confirmed, update user and confirm email
+        const { error: updateError } = await supabase.auth.admin.updateUserById(
+          existingUser.id,
+          { 
+            email_confirm: true,
+            user_metadata: userData
+          }
+        );
+        
+        if (updateError) {
+          console.error(`Erro ao confirmar email para ${email}:`, updateError);
+          return { success: false, error: updateError };
+        }
+        
+        console.log(`Email confirmado para ${email}`);
+        return { success: true, confirmed: true };
+      }
+    } else {
+      // User doesn't exist, create a new account
+      const { data, error: createError } = await supabase.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: true,
+        user_metadata: userData
+      });
+      
+      if (createError) {
+        console.error(`Erro ao criar conta para ${email}:`, createError);
+        return { success: false, error: createError };
+      }
+      
+      console.log(`Conta ${email} criada com sucesso`);
+      return { success: true, created: true, user: data.user };
+    }
+  } catch (error) {
+    console.error(`Erro ao criar/confirmar conta para ${email}:`, error);
+    return { success: false, error };
+  }
+}
