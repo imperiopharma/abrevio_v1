@@ -395,35 +395,53 @@ export const fetchQRCodeConfig = async (linkId: string): Promise<QRCodeConfig | 
 
 // Autenticação
 export const signIn = async (email: string, password: string) => {
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
-  
-  if (error) {
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    
+    if (error) {
+      console.error('Sign in error:', error);
+      throw error;
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Sign in exception:', error);
     throw error;
   }
-  
-  return data;
 };
 
 export const signUp = async (email: string, password: string) => {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-  });
-  
-  if (error) {
+  try {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+    
+    if (error) {
+      console.error('Sign up error:', error);
+      throw error;
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Sign up exception:', error);
     throw error;
   }
-  
-  return data;
 };
 
 export const signOut = async () => {
-  const { error } = await supabase.auth.signOut();
-  
-  if (error) {
+  try {
+    const { error } = await supabase.auth.signOut();
+    
+    if (error) {
+      console.error('Sign out error:', error);
+      throw error;
+    }
+  } catch (error) {
+    console.error('Sign out exception:', error);
     throw error;
   }
 };

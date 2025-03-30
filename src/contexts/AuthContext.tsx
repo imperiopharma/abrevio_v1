@@ -1,11 +1,13 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User } from '@supabase/supabase-js';
+import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { getCurrentUser, signIn, signOut, signUp } from '@/services/api';
+import { signIn, signUp, signOut } from '@/services/api';
+import { toast } from 'sonner';
 
 type AuthContextType = {
   user: User | null;
+  session: Session | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<any>;
   signUp: (email: string, password: string) => Promise<any>;
@@ -16,42 +18,44 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Verificar se há um usuário autenticado
-    const checkUser = async () => {
-      setLoading(true);
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, newSession) => {
+        console.log('Auth state changed:', event, newSession?.user?.email);
+        setSession(newSession);
+        setUser(newSession?.user ?? null);
+        setLoading(false);
+      }
+    );
+
+    // THEN check for existing session
+    const initializeAuth = async () => {
       try {
-        const user = await getCurrentUser();
-        setUser(user);
+        const { data } = await supabase.auth.getSession();
+        setSession(data.session);
+        setUser(data.session?.user ?? null);
       } catch (error) {
-        console.error('Erro ao verificar usuário:', error);
-        setUser(null);
+        console.error('Error initializing auth:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    // Verificar usuário atual
-    checkUser();
-
-    // Configurar listener para mudanças de autenticação
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
-    );
+    initializeAuth();
 
     // Cleanup
     return () => {
-      authListener.subscription.unsubscribe();
+      subscription.unsubscribe();
     };
   }, []);
 
   const value = {
     user,
+    session,
     loading,
     signIn,
     signUp,

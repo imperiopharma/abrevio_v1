@@ -9,7 +9,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, isAdmin = false }) => {
-  const { user, loading } = useAuth();
+  const { user, loading, session } = useAuth();
 
   // Enquanto carrega, mostra um spinner
   if (loading) {
@@ -21,7 +21,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, isAdmin = fal
   }
 
   // Se não estiver autenticado, redireciona para o login
-  if (!user) {
+  if (!session || !user) {
+    console.log('No authenticated session, redirecting to login');
     return <Navigate to="/login" replace />;
   }
 
