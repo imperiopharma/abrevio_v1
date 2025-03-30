@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Transition } from '@/components/animations/Transition';
 import { useToast } from '@/hooks/use-toast';
@@ -40,7 +39,20 @@ const MyLinks = () => {
     setIsLoading(true);
     try {
       const userLinks = await fetchUserLinks();
-      setLinks(userLinks);
+      const typedLinks: LinkType[] = userLinks.map(link => ({
+        id: link.id || '',
+        user_id: link.user_id || '',
+        short_url: link.short_url,
+        original_url: link.original_url,
+        slug: link.slug,
+        title: link.title,
+        clicks: 0,
+        is_active: link.is_active ?? true,
+        expires_at: link.expires_at,
+        created_at: link.created_at || new Date().toISOString(),
+        tags: link.tags
+      }));
+      setLinks(typedLinks);
     } catch (error) {
       console.error("Erro ao carregar links:", error);
       toast({
@@ -53,7 +65,6 @@ const MyLinks = () => {
     }
   };
 
-  // Filter links based on search term
   const filteredLinks = links.filter(
     link => 
       link.short_url.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -148,7 +159,6 @@ const MyLinks = () => {
         )}
       </Transition>
       
-      {/* QR Code Modal */}
       <QRCodeModal
         isOpen={qrCodeModalOpen}
         onClose={() => setQrCodeModalOpen(false)}
@@ -156,7 +166,6 @@ const MyLinks = () => {
         linkId={qrCodeLinkId || undefined}
       />
       
-      {/* Stats Modal */}
       {selectedLinkId && (
         <LinkStatsModal 
           isOpen={statsModalOpen}

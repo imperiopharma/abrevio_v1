@@ -4,7 +4,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import GlassCard from '@/components/ui/GlassCard';
 import { Transition } from '@/components/animations/Transition';
-import { Copy, QrCode, BarChart3, ExternalLink, Trash, Check, Calendar, Toggle } from 'lucide-react';
+import { Copy, QrCode, BarChart3, ExternalLink, Trash, Check, Calendar } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { LinkType } from '@/components/links/types';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
