@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -16,7 +15,7 @@ const Login = () => {
   const { signIn, isAuthenticated, loading: authLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -30,30 +29,31 @@ const Login = () => {
     setError(null);
     
     if (!email || !password) {
-      setError('Por favor, preencha todos os campos');
+      setError('Por favor, preencha todos os campos.');
       return;
     }
     
-    setLoading(true);
+    setIsLoading(true);
     
     try {
-      const result = await signIn(email, password);
-      console.log('Login result:', result);
+      const { error } = await signIn(email, password);
       
-      toast({
-        title: 'Login realizado com sucesso',
-        description: 'Você será redirecionado para o dashboard',
+      if (error) {
+        throw error;
+      }
+      
+      // Redirect will happen automatically via onAuthStateChange
+      toast.success('Login bem-sucedido', {
+        description: 'Bem-vindo de volta!'
       });
-      navigate('/dashboard');
     } catch (error: any) {
-      console.error('Erro no login:', error);
-      setError(error.message || 'Ocorreu um erro ao fazer login. Tente novamente.');
+      console.error('Login error:', error);
+      setError(error.message || 'Falha ao fazer login. Tente novamente.');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  // Funções para login rápido com contas de teste
   const loginAsUser = () => {
     setEmail("usuario@teste.com");
     setPassword("123456");
@@ -147,7 +147,6 @@ const Login = () => {
                     />
                   </div>
                   
-                  {/* Botões de login rápido */}
                   <div className="pt-2">
                     <p className="text-sm text-gray-400 mb-2">Contas para teste:</p>
                     <div className="flex gap-2">

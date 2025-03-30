@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -32,9 +31,8 @@ const ResetPassword = () => {
     try {
       await resetPassword(email);
       setSuccess(true);
-      toast({
-        title: 'Email enviado',
-        description: 'Verifique sua caixa de entrada para redefinir sua senha',
+      toast.success('Email enviado', {
+        description: 'Verifique sua caixa de entrada para redefinir sua senha'
       });
     } catch (error: any) {
       console.error('Erro ao enviar email de redefinição:', error);

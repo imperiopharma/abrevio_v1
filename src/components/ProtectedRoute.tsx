@@ -16,10 +16,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, isAdmin = fal
 
   React.useEffect(() => {
     if (!loading && !isAuthenticated) {
-      toast({
-        title: 'Acesso restrito',
-        description: 'Você precisa estar logado para acessar esta página',
-        variant: 'destructive',
+      toast.error("Acesso restrito", {
+        description: 'Você precisa estar logado para acessar esta página'
       });
     }
   }, [loading, isAuthenticated]);
@@ -46,10 +44,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, isAdmin = fal
   if (isAdmin) {
     const isUserAdmin = user.user_metadata?.role === 'admin';
     if (!isUserAdmin) {
-      toast({
-        title: 'Acesso restrito',
-        description: 'Você não tem permissão para acessar esta área',
-        variant: 'destructive',
+      toast.error("Acesso restrito", {
+        description: 'Você não tem permissão para acessar esta área'
       });
       return <Navigate to="/dashboard" replace />;
     }

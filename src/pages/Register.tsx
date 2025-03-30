@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -17,8 +16,9 @@ const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated && !authLoading) {
@@ -31,34 +31,38 @@ const Register = () => {
     setError(null);
     
     if (!email || !password || !confirmPassword) {
-      setError('Por favor, preencha todos os campos');
+      setError('Por favor, preencha todos os campos.');
       return;
     }
     
     if (password !== confirmPassword) {
-      setError('A senha e a confirmação de senha devem ser iguais');
+      setError('As senhas não coincidem.');
       return;
     }
     
     if (password.length < 6) {
-      setError('A senha deve ter pelo menos 6 caracteres');
+      setError('A senha deve ter pelo menos 6 caracteres.');
       return;
     }
     
-    setLoading(true);
+    setIsLoading(true);
     
     try {
-      await signUp(email, password);
-      toast({
-        title: 'Conta criada com sucesso',
-        description: 'Verifique seu email para confirmar sua conta',
+      const { error } = await signUp(email, password);
+      
+      if (error) {
+        throw error;
+      }
+      
+      setSuccess(true);
+      toast.success('Conta criada com sucesso', {
+        description: 'Verifique seu email para confirmar seu cadastro.'
       });
-      navigate('/login');
     } catch (error: any) {
-      console.error('Erro no cadastro:', error);
-      setError(error.message || 'Não foi possível criar sua conta');
+      console.error('Registration error:', error);
+      setError(error.message || 'Falha ao criar conta. Tente novamente.');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
