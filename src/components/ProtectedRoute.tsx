@@ -1,9 +1,10 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
+import { createTestAccounts } from '@/services/auth';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -13,6 +14,19 @@ interface ProtectedRouteProps {
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, isAdmin = false }) => {
   const { user, loading, session, isAuthenticated } = useAuth();
   const location = useLocation();
+
+  // Cria contas de teste ao carregar o componente
+  useEffect(() => {
+    const setupTestAccounts = async () => {
+      try {
+        await createTestAccounts();
+      } catch (error) {
+        console.error('Error creating test accounts:', error);
+      }
+    };
+    
+    setupTestAccounts();
+  }, []);
 
   React.useEffect(() => {
     if (!loading && !isAuthenticated) {

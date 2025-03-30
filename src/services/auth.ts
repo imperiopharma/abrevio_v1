@@ -137,63 +137,83 @@ export const updatePassword = async (newPassword: string) => {
 // Função para criar contas de teste
 export const createTestAccounts = async () => {
   try {
-    // Verifica se já existe o usuário de teste
-    const { data: existingUsers, error: searchError } = await supabase.auth.admin.listUsers();
+    console.log("Tentando criar contas de teste...");
     
-    if (searchError) {
-      console.error("Erro ao verificar usuários existentes:", searchError);
-      return;
-    }
+    // Primeiro, verificar usuário comum
+    const { data: userExistsCheck, error: userCheckError } = await supabase.auth.signInWithPassword({
+      email: "usuario@teste.com",
+      password: "123456"
+    });
     
-    // Define o tipo explícito para os usuários
-    type UserWithEmail = {
-      email?: string;
-      user_metadata?: {
-        role?: string;
-      };
-    };
-    
-    // Verifica se o usuário comum já existe
-    const userExists = existingUsers?.users?.some((user: UserWithEmail) => 
-      user?.email === "usuario@teste.com"
-    );
-    
-    // Verifica se o admin já existe
-    const adminExists = existingUsers?.users?.some((user: UserWithEmail) => 
-      user?.email === "admin@teste.com"
-    );
-    
-    // Cria o usuário comum se não existir
-    if (!userExists) {
-      const { error: userError } = await supabase.auth.admin.createUser({
+    // Se o usuário comum não existe, criar
+    if (userCheckError && userCheckError.message.includes('Invalid login')) {
+      console.log("Criando conta de usuário comum...");
+      const { error: userError } = await supabase.auth.signUp({
         email: "usuario@teste.com",
         password: "123456",
-        email_confirm: true
+        options: {
+          data: { role: 'user' }
+        }
       });
       
       if (userError) {
-        console.error("Erro ao criar usuário de teste:", userError);
+        console.error("Erro ao criar usuário comum:", userError);
       } else {
-        console.log("Usuário de teste criado com sucesso");
+        console.log("Conta de usuário comum criada!");
+        
+        // Auto-confirmar email para testes (supabase admin seria necessário para isso)
+        try {
+          const { error } = await supabase.functions.invoke('confirm-user-email', {
+            body: { email: "usuario@teste.com" }
+          });
+          if (error) console.error("Erro ao confirmar email:", error);
+        } catch (err) {
+          console.error("Erro na função de confirmar email:", err);
+        }
       }
+    } else {
+      console.log("Usuário comum já existe");
     }
     
-    // Cria o usuário admin se não existir
-    if (!adminExists) {
-      const { error: adminError } = await supabase.auth.admin.createUser({
+    // Verificar admin
+    const { data: adminExistsCheck, error: adminCheckError } = await supabase.auth.signInWithPassword({
+      email: "admin@teste.com",
+      password: "123456"
+    });
+    
+    // Se o admin não existe, criar
+    if (adminCheckError && adminCheckError.message.includes('Invalid login')) {
+      console.log("Criando conta de administrador...");
+      const { error: adminError } = await supabase.auth.signUp({
         email: "admin@teste.com",
         password: "123456",
-        email_confirm: true,
-        user_metadata: { role: "admin" }
+        options: {
+          data: { role: 'admin' }
+        }
       });
       
       if (adminError) {
-        console.error("Erro ao criar admin de teste:", adminError);
+        console.error("Erro ao criar administrador:", adminError);
       } else {
-        console.log("Admin de teste criado com sucesso");
+        console.log("Conta de administrador criada!");
+        
+        // Auto-confirmar email para testes
+        try {
+          const { error } = await supabase.functions.invoke('confirm-user-email', {
+            body: { email: "admin@teste.com" }
+          });
+          if (error) console.error("Erro ao confirmar email:", error);
+        } catch (err) {
+          console.error("Erro na função de confirmar email:", err);
+        }
       }
+    } else {
+      console.log("Administrador já existe");
     }
+    
+    return { success: true };
   } catch (error) {
     console.error("Erro ao criar contas de teste:", error);
+    return { success: false, error };
   }
 };
