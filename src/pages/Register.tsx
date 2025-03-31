@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -48,16 +49,21 @@ const Register = () => {
     setIsLoading(true);
     
     try {
-      const { error } = await signUp(email, password);
+      console.log("Attempting to sign up with:", email);
+      const { data, error } = await signUp(email, password);
       
       if (error) {
         throw error;
       }
       
+      console.log("Sign up successful:", data);
       setSuccess(true);
       toast.success('Conta criada com sucesso', {
         description: 'Verifique seu email para confirmar seu cadastro.'
       });
+      
+      // After signup is successful, redirect to login page
+      navigate('/login');
     } catch (error: any) {
       console.error('Registration error:', error);
       setError(error.message || 'Falha ao criar conta. Tente novamente.');

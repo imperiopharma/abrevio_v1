@@ -10,6 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Transition } from '@/components/animations/Transition';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { createTestAccounts } from '@/services/auth/testAccounts';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -18,9 +19,33 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [loading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [testAccountsCreated, setTestAccountsCreated] = useState(false);
+
+  useEffect(() => {
+    // Setup test accounts if they haven't been created yet
+    if (!testAccountsCreated) {
+      const setupTestAccounts = async () => {
+        try {
+          console.log("Iniciando criação de contas de teste...");
+          const result = await createTestAccounts();
+          console.log("Resultado da criação de contas de teste:", result);
+          
+          if (result.success) {
+            console.log("Contas de teste criadas com sucesso");
+            setTestAccountsCreated(true);
+          }
+        } catch (error) {
+          console.error('Erro ao criar contas de teste:', error);
+        }
+      };
+      
+      setupTestAccounts();
+    }
+  }, [testAccountsCreated]);
 
   useEffect(() => {
     if (isAuthenticated && !authLoading) {
+      console.log("User is authenticated, redirecting to dashboard");
       navigate('/dashboard');
     }
   }, [isAuthenticated, authLoading, navigate]);
@@ -37,9 +62,10 @@ const Login = () => {
     setIsLoading(true);
     
     try {
-      await signIn(email, password);
+      const result = await signIn(email, password);
+      console.log("Login result:", result);
       
-      // Redirect will happen automatically via onAuthStateChange
+      // The redirect will happen via the useEffect hook when isAuthenticated changes
       toast.success('Login bem-sucedido', {
         description: 'Bem-vindo de volta!'
       });

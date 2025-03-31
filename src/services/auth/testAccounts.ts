@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { AdminUserAttributes } from "@supabase/supabase-js";
+import { User, AdminUserAttributes } from "@supabase/supabase-js";
 
 // Function to create and confirm test accounts for development
 export const createTestAccounts = async () => {
@@ -47,9 +47,10 @@ async function createOrConfirmTestAccount(
       return { success: false, error: getUserError };
     }
     
-    // Properly type the users array to fix the TypeScript error
-    const existingUser = data?.users && data.users.length > 0 
-      ? data.users.find(u => u.email === email) 
+    // Type safety check to ensure data.users is an array before using find
+    const users = data?.users as User[] | undefined;
+    const existingUser = users && users.length > 0 
+      ? users.find(u => u.email === email) 
       : undefined;
     
     if (existingUser) {

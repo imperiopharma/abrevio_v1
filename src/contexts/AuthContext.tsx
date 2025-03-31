@@ -26,12 +26,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const isAuthenticated = !!session && !!user;
 
   useEffect(() => {
+    console.log("Setting up auth state listener");
+    
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, newSession) => {
         console.log('Auth state changed:', event, newSession?.user?.email);
         setSession(newSession);
         setUser(newSession?.user ?? null);
+        
+        if (event === 'SIGNED_IN') {
+          toast.success('Login realizado com sucesso!');
+        } else if (event === 'SIGNED_OUT') {
+          toast.info('Você saiu da sua conta');
+        }
+        
         setLoading(false);
       }
     );
@@ -39,7 +48,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // THEN check for existing session
     const initializeAuth = async () => {
       try {
+        console.log("Checking for existing session");
         const { data } = await supabase.auth.getSession();
+        console.log("Session check result:", data.session ? "Session found" : "No session");
         setSession(data.session);
         setUser(data.session?.user ?? null);
       } catch (error) {
@@ -53,9 +64,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     // Cleanup
     return () => {
+      console.log("Cleaning up auth state listener");
       subscription.unsubscribe();
     };
   }, []);
+
+  // Wrap the original signOut to handle navigation
+  const handleSignOut = async () => {
+    await signOut();
+    // Navigate using React Router instead of window.location
+    window.location.href = '/';
+  };
 
   const value = {
     user,
@@ -63,7 +82,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     loading,
     signIn,
     signUp,
-    signOut,
+    signOut: handleSignOut,
     resetPassword,
     updatePassword,
     isAuthenticated,

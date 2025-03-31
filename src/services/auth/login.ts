@@ -42,7 +42,8 @@ export const signOut = async () => {
     }
     
     console.log('Sign out successful');
-    window.location.href = '/';
+    // Don't use window.location.href as it causes a full page reload
+    return true;
   } catch (error) {
     console.error('Sign out exception:', error);
     throw error;
